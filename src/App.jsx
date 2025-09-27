@@ -24,27 +24,10 @@ import DarkwebPage from './components/Darkweb/DarkwebPage';
 import StealerLogsPage from './components/StealerLogs/StealerLogsPage';
 import CombolistPage from './components/Combolist/CombolistPage';
 
-// Organization Pages (placeholder for now)
-const OrganizationSettings = () => (
-  <div className="p-6">
-    <h1 className="text-2xl font-bold mb-4">Organization Settings</h1>
-    <p>Organization management features coming soon...</p>
-  </div>
-);
-
-const UserManagement = () => (
-  <div className="p-6">
-    <h1 className="text-2xl font-bold mb-4">User Management</h1>
-    <p>User management features coming soon...</p>
-  </div>
-);
-
-const ApiKeys = () => (
-  <div className="p-6">
-    <h1 className="text-2xl font-bold mb-4">API Keys</h1>
-    <p>API key management features coming soon...</p>
-  </div>
-);
+// Organization Pages
+import OrganizationSettings from './components/Organization/OrganizationSettings';
+import UserManagement from './components/Organization/UserManagement';
+import ApiKeyManagement from './components/Organization/ApiKeyManagement';
 
 // Dashboard wrapper that includes the main layout
 const DashboardWrapper = ({ children }) => {
@@ -130,7 +113,7 @@ function App() {
 
             <Route path="/organization/api-keys" element={
               <DashboardWrapper>
-                <ApiKeys />
+                <ApiKeyManagement />
               </DashboardWrapper>
             } />
 

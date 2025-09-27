@@ -87,13 +87,24 @@ export const requestPasswordReset = createAsyncThunk(
   }
 );
 
-// Initial state
+// Initial state - TRACECORE ADMIN ACCOUNT
 const initialState = {
-  user: null,
-  isAuthenticated: false,
+  user: {
+    uid: 'tracecore-admin-001',
+    email: 'admin@tracecore.com',
+    firstName: 'TraceCore',
+    lastName: 'Administrator',
+    organizationName: 'TraceCore Security',
+    organizationId: 'tracecore-org-001',
+    role: 'admin',
+    emailVerified: true,
+    createdAt: new Date().toISOString(),
+    lastLogin: new Date().toISOString()
+  },
+  isAuthenticated: true,
   isLoading: false,
   error: null,
-  isInitialized: false,
+  isInitialized: true,
 };
 
 const authSlice = createSlice({

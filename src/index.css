@@ -23,19 +23,90 @@ body {
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #1e293b;
+  background: rgba(31, 41, 55, 0.5);
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #475569;
-  border-radius: 4px;
+  background: #4b5563;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
+  background: #6b7280;
+}
+
+/* Custom scrollbar for sidebar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 2px;
+  opacity: 0.6;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  opacity: 1;
+}
+
+/* Animations */
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(6, 182, 212, 0.5), 0 0 10px rgba(6, 182, 212, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.8), 0 0 20px rgba(6, 182, 212, 0.6);
+  }
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* Glassmorphism effects */
+.glass-effect {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Cyberpunk neon effects */
+.neon-border {
+  box-shadow:
+    inset 0 0 10px rgba(6, 182, 212, 0.3),
+    0 0 20px rgba(6, 182, 212, 0.2),
+    0 0 40px rgba(6, 182, 212, 0.1);
+}
+
+/* Dark theme improvements */
+body {
+  background: #111827;
+  color: #e5e7eb;
+}
+
+/* Loading animation */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

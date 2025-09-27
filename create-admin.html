@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Admin Account</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007bff; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 20px; padding: 15px; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>Create Admin Account</h1>
+    <p>Use this tool to create an admin account for your ThreatScope dashboard.</p>
+
+    <form id="adminForm">
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" required placeholder="admin@yourcompany.com">
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" required placeholder="Strong password">
+        </div>
+
+        <div class="form-group">
+            <label for="firstName">First Name:</label>
+            <input type="text" id="firstName" required placeholder="John">
+        </div>
+
+        <div class="form-group">
+            <label for="lastName">Last Name:</label>
+            <input type="text" id="lastName" required placeholder="Doe">
+        </div>
+
+        <div class="form-group">
+            <label for="organizationName">Organization Name:</label>
+            <input type="text" id="organizationName" required placeholder="Your Company">
+        </div>
+
+        <div class="form-group">
+            <label for="role">Role:</label>
+            <select id="role">
+                <option value="admin">Admin (Full Access)</option>
+                <option value="owner">Owner (Full Access + Organization Management)</option>
+                <option value="analyst">Analyst (All Intelligence Data)</option>
+                <option value="stealer_analyst">Stealer Analyst (Only Stealer Logs)</option>
+                <option value="darkweb_analyst">Dark Web Analyst (Only Dark Web)</option>
+                <option value="viewer">Viewer (Dashboard Only)</option>
+            </select>
+        </div>
+
+        <button type="submit">Create Admin Account</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDoEVFRmOF0rkig4_-swUGlw8jbLtNLCKw",
+            authDomain: "forticore-194e5.firebaseapp.com",
+            projectId: "forticore-194e5",
+            storageBucket: "forticore-194e5.firebasestorage.app",
+            messagingSenderId: "205914298737",
+            appId: "1:205914298737:web:58b1bf143651681334fed0"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Set Firestore to use test mode (disable security rules temporarily)
+        db.settings({
+            host: 'localhost:8080',
+            ssl: false
+        });
+
+        document.getElementById('adminForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const organizationName = document.getElementById('organizationName').value;
+            const role = document.getElementById('role').value;
+
+            const resultDiv = document.getElementById('result');
+
+            try {
+                resultDiv.innerHTML = '<div class="result">Creating account...</div>';
+
+                // Create user with email and password
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // Create organization first
+                const orgRef = db.collection('organizations').doc();
+                const orgId = orgRef.id;
+
+                await orgRef.set({
+                    name: organizationName,
+                    ownerId: user.uid,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    settings: {
+                        allowedDomains: [],
+                        twoFactorRequired: false
+                    }
+                });
+
+                // Create user profile with admin role
+                await db.collection('users').doc(user.uid).set({
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email,
+                    organizationId: orgId,
+                    organizationName: organizationName,
+                    role: role,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                    emailVerified: true
+                });
+
+                // Send email verification
+                await user.sendEmailVerification();
+
+                resultDiv.innerHTML = `
+                    <div class="result success">
+                        <h3>Admin Account Created Successfully!</h3>
+                        <p><strong>Email:</strong> ${email}</p>
+                        <p><strong>Role:</strong> ${role}</p>
+                        <p><strong>Organization:</strong> ${organizationName}</p>
+                        <p><strong>User ID:</strong> ${user.uid}</p>
+                        <p><strong>Organization ID:</strong> ${orgId}</p>
+                        <hr>
+                        <p>You can now sign in to your dashboard with these credentials.</p>
+                        <p>A verification email has been sent to ${email}</p>
+                    </div>
+                `;
+
+                // Sign out the admin user so they can sign in normally
+                await auth.signOut();
+
+            } catch (error) {
+                console.error('Error creating admin account:', error);
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <h3>Error Creating Account</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p><strong>Code:</strong> ${error.code}</p>
+
+                        ${error.code === 'permission-denied' ? `
+                            <hr>
+                            <h4>Fix for Permission Denied:</h4>
+                            <ol>
+                                <li>Go to <a href="https://console.firebase.google.com/project/forticore-194e5/firestore" target="_blank">Firebase Console - Firestore</a></li>
+                                <li>Click on "Rules" tab</li>
+                                <li>Replace the rules with:</li>
+                            </ol>
+                            <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px;">
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}</pre>
+                            <p>This enables test mode. You can configure proper security rules later.</p>
+                        ` : ''}
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

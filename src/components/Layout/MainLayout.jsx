@@ -1,12 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Sidebar from './Sidebar';
+import GlassPanel from '../UI/GlassPanel';
 import { fetchOrganizationData } from '../../store/slices/organizationSlice';
 
 const MainLayout = ({ children }) => {
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.auth);
-  const { sidebarCollapsed } = useSelector(state => state.ui);
+  const [sidebarWidth, setSidebarWidth] = useState(320); // Default width for new sidebar
 
   useEffect(() => {
     // Fetch organization data when layout mounts
@@ -16,11 +17,24 @@ const MainLayout = ({ children }) => {
   }, [dispatch, user?.organizationId]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-      <Sidebar />
-      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'} p-6`}>
-        <div className="max-w-7xl mx-auto">
-          {children}
+    <div className="min-h-screen bg-gray-900 text-white">
+
+      {/* Sidebar */}
+      <div className="fixed left-0 top-0 h-full z-50">
+        <Sidebar />
+      </div>
+
+      {/* Main Content */}
+      <div
+        className="transition-all duration-300 relative z-10"
+        style={{ marginLeft: sidebarWidth }}
+      >
+        <div className="min-h-screen p-6">
+
+          {/* Main Content Area */}
+          <div className="relative">
+            {children}
+          </div>
         </div>
       </div>
     </div>
