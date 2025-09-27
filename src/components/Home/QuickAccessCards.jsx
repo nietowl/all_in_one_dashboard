@@ -1,17 +1,22 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Shield, Database, List, ChevronRight } from 'lucide-react';
 
-const QuickAccessCards = ({ setActiveSection }) => {
+const QuickAccessCards = () => {
+  const navigate = useNavigate();
+
   const cards = [
     {
       id: 'darkweb',
+      path: '/darkweb',
       icon: Shield,
       title: 'Darkweb Data',
       description: 'Access darkweb marketplace data and breach databases',
       color: 'blue'
     },
     {
-      id: 'stealerlogs',
+      id: 'stealer-logs',
+      path: '/stealer-logs',
       icon: Database,
       title: 'Stealer Logs',
       description: 'Analyze malware-extracted credentials and system info',
@@ -19,6 +24,7 @@ const QuickAccessCards = ({ setActiveSection }) => {
     },
     {
       id: 'combolist',
+      path: '/combolist',
       icon: List,
       title: 'Combolist',
       description: 'Search and filter credential combination databases',
@@ -32,6 +38,10 @@ const QuickAccessCards = ({ setActiveSection }) => {
     green: 'hover:border-green-500/50 group-hover:text-green-400'
   };
 
+  const handleCardClick = (path) => {
+    navigate(path);
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       {cards.map(card => {
@@ -39,7 +49,7 @@ const QuickAccessCards = ({ setActiveSection }) => {
         return (
           <button
             key={card.id}
-            onClick={() => setActiveSection(card.id)}
+            onClick={() => handleCardClick(card.path)}
             className={`bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl p-6 text-left ${hoverColors[card.color]} transition-all group`}
           >
             <div className="flex items-center justify-between mb-4">

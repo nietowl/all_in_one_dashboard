@@ -1,39 +1,69 @@
-// Use proxy path (relative URL)
-const API_BASE_URL = '/api/v1';
+import { apiClient, cachedRequest } from './httpClient';
 
 export const fetchCredentials = async (year, month, domain, start = 1, max = 50) => {
-  const url = `${API_BASE_URL}/config/?year=${year}&month=${month}&domain=${domain}&start=${start}&max=${max}`;
-  
-  console.log('🔵 API Call (via proxy):', url);
-  
+  const cacheKey = `credentials_${year}_${month}_${domain}_${start}_${max}`;
+
+  return cachedRequest(cacheKey, async () => {
+    try {
+      const response = await apiClient.get('/combolist/credentials', {
+        params: { year, month, domain, start, max }
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('❌ Credentials API Error:', error);
+      throw new Error(error.response?.data?.message || 'Failed to fetch credentials');
+    }
+  });
+};
+
+export const fetchCombolistStats = async (filters = {}) => {
+  const cacheKey = `combolist_stats_${JSON.stringify(filters)}`;
+
+  return cachedRequest(cacheKey, async () => {
+    try {
+      const response = await apiClient.get('/combolist/stats', {
+        params: filters
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('❌ Combolist Stats API Error:', error);
+      throw new Error(error.response?.data?.message || 'Failed to fetch combolist stats');
+    }
+  });
+};
+
+export const searchCredentials = async (searchTerm, filters = {}, start = 1, max = 50) => {
   try {
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
+    const response = await apiClient.get('/combolist/search', {
+      params: {
+        q: searchTerm,
+        ...filters,
+        start,
+        max
       }
     });
-    
-    console.log('📡 Response Status:', response.status);
-    console.log('📡 Response OK:', response.ok);
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Error response:', errorText);
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-    
-    const data = await response.json();
-    
-    console.log('✅ Data received:', data);
-    console.log('✅ Entries:', data.data?.length);
-    console.log('✅ Total:', data.totalEntries);
-    
-    return data;
+
+    return response.data;
   } catch (error) {
-    console.error('❌ API Error:', error);
-    console.error('❌ Error name:', error.name);
-    console.error('❌ Error message:', error.message);
-    throw error;
+    console.error('❌ Search Credentials API Error:', error);
+    throw new Error(error.response?.data?.message || 'Failed to search credentials');
+  }
+};
+
+export const exportCredentials = async (filters = {}, format = 'csv') => {
+  try {
+    const response = await apiClient.post('/combolist/export', {
+      filters,
+      format
+    }, {
+      responseType: 'blob'
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('❌ Export Credentials API Error:', error);
+    throw new Error(error.response?.data?.message || 'Failed to export credentials');
   }
 };

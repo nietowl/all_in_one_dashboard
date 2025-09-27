@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { fetchCredentials } from '../../services/combolistAPI';
 import CombolistStats from './CombolistStats';
@@ -27,7 +27,7 @@ const CombolistPage = () => {
     max: 50
   });
 
-  const fetchData = async (filters = currentFilters) => {
+  const fetchData = useCallback(async (filters = currentFilters) => {
     console.log('🚀 Fetching data with filters:', filters);
     
     setLoading(true);
@@ -68,13 +68,13 @@ const CombolistPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentFilters]);
 
   // Load data when component mounts
   useEffect(() => {
     console.log('🔄 CombolistPage mounted');
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   // Debug: Log when credentialData changes
   useEffect(() => {

@@ -1,6 +1,6 @@
-const API_BASE_URL = '/api/v1'; // Using proxy
+import { apiClient, cachedRequest } from './httpClient';
 
-// Mock data based on your JSON structure
+// Mock data based on your JSON structure - keeping for fallback
 const MOCK_STEALER_DATA = [
   {
     machine_id: "78166d42-8023-4443-b19f-8d1946af4f4f",
@@ -100,56 +100,107 @@ const MOCK_STEALER_DATA = [
 
 export const fetchStealerLogs = async (filters = {}) => {
   const { search = '', country = 'all', start = 0, max = 50 } = filters;
-  
-  // TODO: Replace with actual API endpoint
-  const url = `${API_BASE_URL}/stealer-logs?search=${search}&country=${country}&start=${start}&max=${max}`;
-  
-  console.log('🔵 Stealer Logs API Call:', url);
-  
-  try {
-    // Uncomment when API is ready
-    // const response = await fetch(url);
-    // if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    // const data = await response.json();
-    // return data;
-    
-    // For now, return mock data
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
-    
-    let filteredData = [...MOCK_STEALER_DATA];
-    
-    // Apply search filter
-    if (search) {
-      filteredData = filteredData.filter(item => 
-        item.computer_name?.toLowerCase().includes(search.toLowerCase()) ||
-        item.ip_address?.includes(search) ||
-        item.country?.toLowerCase().includes(search.toLowerCase())
-      );
+  const cacheKey = `stealer_logs_${JSON.stringify(filters)}`;
+
+  return cachedRequest(cacheKey, async () => {
+    try {
+      const response = await apiClient.get('/stealer-logs', {
+        params: { search, country, start, max }
+      });
+
+      return response.data;
+    } catch (error) {
+      console.warn('API not available, using mock data:', error.message);
+
+      // Fallback to mock data if API is not available
+      await new Promise(resolve => setTimeout(resolve, 300)); // Simulate API delay
+
+      let filteredData = [...MOCK_STEALER_DATA];
+
+      // Apply search filter
+      if (search) {
+        filteredData = filteredData.filter(item =>
+          item.computer_name?.toLowerCase().includes(search.toLowerCase()) ||
+          item.ip_address?.includes(search) ||
+          item.country?.toLowerCase().includes(search.toLowerCase())
+        );
+      }
+
+      // Apply country filter
+      if (country !== 'all') {
+        filteredData = filteredData.filter(item => item.country === country);
+      }
+
+      return {
+        status: 'ok',
+        total: filteredData.length,
+        data: filteredData.slice(start, start + max)
+      };
     }
-    
-    // Apply country filter
-    if (country !== 'all') {
-      filteredData = filteredData.filter(item => item.country === country);
-    }
-    
-    return {
-      status: 'ok',
-      total: filteredData.length,
-      data: filteredData.slice(start, start + max)
-    };
-    
-  } catch (error) {
-    console.error('❌ Stealer Logs API Error:', error);
-    throw error;
-  }
+  });
 };
 
 export const fetchStealerStats = async () => {
-  // Mock stats
-  return {
-    totalMachines: 125000,
-    totalCredentials: 2100000,
-    uniqueCountries: 185,
-    weakPasswords: 1850000
-  };
+  const cacheKey = 'stealer_stats';
+
+  return cachedRequest(cacheKey, async () => {
+    try {
+      const response = await apiClient.get('/stealer-logs/stats');
+      return response.data;
+    } catch (error) {
+      console.warn('Stats API not available, using mock data:', error.message);
+
+      // Fallback to mock stats
+      return {
+        totalMachines: 125000,
+        totalCredentials: 2100000,
+        uniqueCountries: 185,
+        weakPasswords: 1850000
+      };
+    }
+  });
+};
+
+export const fetchMachineDetails = async (machineId) => {
+  try {
+    const response = await apiClient.get(`/stealer-logs/machines/${machineId}`);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Machine Details API Error:', error);
+    throw new Error(error.response?.data?.message || 'Failed to fetch machine details');
+  }
+};
+
+export const searchStealerLogs = async (searchTerm, filters = {}, start = 0, max = 50) => {
+  try {
+    const response = await apiClient.get('/stealer-logs/search', {
+      params: {
+        q: searchTerm,
+        ...filters,
+        start,
+        max
+      }
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('❌ Search Stealer Logs API Error:', error);
+    throw new Error(error.response?.data?.message || 'Failed to search stealer logs');
+  }
+};
+
+export const exportStealerLogs = async (filters = {}, format = 'csv') => {
+  try {
+    const response = await apiClient.post('/stealer-logs/export', {
+      filters,
+      format
+    }, {
+      responseType: 'blob'
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('❌ Export Stealer Logs API Error:', error);
+    throw new Error(error.response?.data?.message || 'Failed to export stealer logs');
+  }
 };

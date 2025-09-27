@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Search, Filter, Database, Key, Users, AlertTriangle, Monitor, Globe, Cpu } from 'lucide-react';
 import { fetchStealerLogs, fetchStealerStats } from '../../services/stealerLogsAPI';
 import MachineList from './MachineList';
@@ -12,30 +12,31 @@ const StealerLogsPage = () => {
   const [error, setError] = useState(null);
   const [selectedMachine, setSelectedMachine] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState({
+  const [filters] = useState({
     country: 'all',
     start: 0,
     max: 50
   });
 
-  useEffect(() => {
-    loadData();
-    loadStats();
-  }, []);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
-      const data = await fetchStealerLogs({ ...filters, search: searchTerm });
+      const searchFilters = {
+        search: searchTerm,
+        ...filters
+      };
+
+      const data = await fetchStealerLogs(searchFilters);
       setMachines(data.data || []);
     } catch (err) {
-      setError(err.message);
+      setError('Failed to load stealer logs data');
+      console.error('Error loading stealer logs:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchTerm, filters]);
 
   const loadStats = async () => {
     try {
@@ -45,6 +46,11 @@ const StealerLogsPage = () => {
       console.error('Error loading stats:', err);
     }
   };
+
+  useEffect(() => {
+    loadData();
+    loadStats();
+  }, [loadData]);
 
   const handleSearch = () => {
     loadData();
