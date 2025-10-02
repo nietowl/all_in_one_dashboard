@@ -8,10 +8,15 @@ const SearchBar = ({
   onSearch,
   onFilterChange,
   filters = {},
-  className = ''
+  className = '',
+  showMonthYear = false,
+  month = '',
+  year = '',
+  onMonthChange,
+  onYearChange
 }) => {
   const [searchValue, setSearchValue] = useState('');
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showAdvanced] = useState(false); // Advanced filters feature - to be implemented
   const [activeFilters, setActiveFilters] = useState(filters);
 
   const handleSearch = (e) => {
@@ -82,19 +87,38 @@ const SearchBar = ({
             Search
           </Button3D>
 
-          <Button3D
-            variant={showAdvanced ? "cyberpunk" : "ghost"}
-            onClick={() => setShowAdvanced(!showAdvanced)}
-            className="relative"
-            icon={Filter}
-          >
-            Filters
-            {activeFilterCount > 0 && (
-              <span className="absolute -top-2 -right-2 w-5 h-5 bg-cyan-400 text-gray-900 text-xs rounded-full flex items-center justify-center font-bold">
-                {activeFilterCount}
-              </span>
-            )}
-          </Button3D>
+          {showMonthYear && (
+            <>
+              <select
+                value={month}
+                onChange={(e) => onMonthChange && onMonthChange(e.target.value)}
+                className="bg-gray-800 border border-gray-600 text-white text-sm rounded-lg px-3 py-2 focus:ring-cyan-500 focus:border-cyan-500"
+              >
+                <option value="january">Jan</option>
+                <option value="february">Feb</option>
+                <option value="march">Mar</option>
+                <option value="april">Apr</option>
+                <option value="may">May</option>
+                <option value="june">Jun</option>
+                <option value="july">Jul</option>
+                <option value="august">Aug</option>
+                <option value="september">Sep</option>
+                <option value="october">Oct</option>
+                <option value="november">Nov</option>
+                <option value="december">Dec</option>
+              </select>
+              <select
+                value={year}
+                onChange={(e) => onYearChange && onYearChange(e.target.value)}
+                className="bg-gray-800 border border-gray-600 text-white text-sm rounded-lg px-3 py-2 focus:ring-cyan-500 focus:border-cyan-500"
+              >
+                <option value="2023">2023</option>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+              </select>
+            </>
+          )}
+
         </form>
       </GlassPanel>
 

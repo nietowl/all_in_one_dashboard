@@ -17,12 +17,14 @@ import LoginPage from './components/Auth/LoginPage';
 import RegisterPage from './components/Auth/RegisterPage';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 // Page Components
 import HomePage from './components/Home/HomePage';
 import DarkwebPage from './components/Darkweb/DarkwebPage';
 import StealerLogsPage from './components/StealerLogs/StealerLogsPage';
 import CombolistPage from './components/Combolist/CombolistPage';
+import CredentialIntelPage from './components/CredentialIntel/CredentialIntelPage';
 
 // Organization Pages
 import OrganizationSettings from './components/Organization/OrganizationSettings';
@@ -65,9 +67,10 @@ function App() {
   return (
     <ErrorBoundary>
       <Provider store={store}>
-        <AuthProvider>
-          <Router>
-            <div className="App">
+        <ThemeProvider>
+          <AuthProvider>
+            <Router>
+              <div className="App">
               <Routes>
             {/* Public Routes */}
             <Route path="/login" element={<LoginPage />} />
@@ -94,7 +97,7 @@ function App() {
 
             <Route path="/combolist" element={
               <DashboardWrapper>
-                <CombolistPage />
+                <CredentialIntelPage />
               </DashboardWrapper>
             } />
 
@@ -133,9 +136,10 @@ function App() {
 
               {/* Global Notification Center */}
               <NotificationCenter />
-            </div>
-          </Router>
-        </AuthProvider>
+              </div>
+            </Router>
+          </AuthProvider>
+        </ThemeProvider>
       </Provider>
     </ErrorBoundary>
   );

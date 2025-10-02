@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
 import {
   Building,
   Globe,
@@ -23,7 +22,6 @@ import {
 } from 'lucide-react';
 
 const OrganizationSettings = () => {
-  const { user } = useSelector(state => state.auth);
 
   const [settings, setSettings] = useState({
     // General Settings

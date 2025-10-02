@@ -28,7 +28,6 @@ const UserManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState('all');
   const [showAddUser, setShowAddUser] = useState(false);
-  const [editingUser, setEditingUser] = useState(null);
 
   // Mock users data - in real app this would come from API/Firebase
   const [users, setUsers] = useState([

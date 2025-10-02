@@ -1,38 +1,43 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { logoutUser } from '../../store/slices/authSlice';
-import { addNotification } from '../../store/slices/uiSlice';
-import { filterNavigationByPermissions, hasPermission, PERMISSIONS } from '../../utils/permissions';
-import Button3D from '../UI/Button3D';
-import GlassPanel from '../UI/GlassPanel';
 import {
-  Home,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Box,
+  Typography,
+  Avatar,
+  Chip,
+  IconButton,
+  Badge,
+  useTheme,
+  alpha
+} from '@mui/material';
+import {
   Globe,
   Database,
-  List,
-  Settings,
-  Users,
-  Key,
+  List as ListIcon,
   LogOut,
   ChevronLeft,
   ChevronRight,
   Shield,
-  Building,
-  Activity,
-  Bell,
-  Search,
-  TrendingUp,
-  Eye,
-  AlertTriangle,
-  Zap
+  Eye
 } from 'lucide-react';
+import { logoutUser } from '../../store/slices/authSlice';
+import { addNotification } from '../../store/slices/uiSlice';
+import { useAppTheme } from '../../hooks/useAppTheme';
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector(state => state.auth);
+  const theme = useTheme();
+  const { isDarkMode } = useAppTheme(); // eslint-disable-line no-unused-vars
 
   const handleLogout = async () => {
     try {
@@ -71,9 +76,9 @@ const Sidebar = () => {
       count: '2.3k'
     },
     {
-      name: 'Credential Intel',
+      name: 'Combolist',
       path: '/combolist',
-      icon: List,
+      icon: ListIcon,
       description: 'Leaked credentials',
       count: '892'
     }
@@ -82,297 +87,369 @@ const Sidebar = () => {
   // Show all navigation items for now (permissions can be added later)
   const navigationItems = allNavigationItems;
 
-  const quickActions = [
-    {
-      name: 'Threat Hunt',
-      icon: Search
-    },
-    {
-      name: 'Alerts',
-      icon: Bell,
-      badge: '3'
-    },
-    {
-      name: 'Live Feed',
-      icon: Activity
-    }
-  ];
 
-  const organizationItems = [
-    {
-      name: 'Organization',
-      path: '/organization/settings',
-      icon: Building,
-      description: 'Manage settings'
-    },
-    {
-      name: 'Team Access',
-      path: '/organization/users',
-      icon: Users,
-      description: 'User permissions'
-    },
-    {
-      name: 'API Center',
-      path: '/organization/api-keys',
-      icon: Key,
-      description: 'Integration keys'
-    }
-  ];
+
+  const sidebarWidth = isCollapsed ? 64 : 320;
 
   return (
-    <div className={`
-      bg-slate-900 border-r border-slate-700
-      text-white h-full flex flex-col transition-all duration-300
-      ${isCollapsed ? 'w-16' : 'w-80'}
-    `}>
+    <Drawer
+      variant="permanent"
+      sx={{
+        width: sidebarWidth,
+        flexShrink: 0,
+        '& .MuiDrawer-paper': {
+          width: sidebarWidth,
+          boxSizing: 'border-box',
+          background: theme.palette.background.paper,
+          borderRight: `1px solid ${theme.palette.divider}`,
+          transition: 'width 0.3s ease-in-out',
+          overflow: 'hidden',
+        },
+      }}
+    >
       {/* Header */}
-      <div className="bg-slate-800/50 border border-slate-700 rounded-lg m-3 p-4">
-        <div className="flex items-center justify-between">
+      <Box sx={{
+        p: 2,
+        borderBottom: `2px solid ${theme.palette.divider}`,
+        background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.08)} 0%, ${alpha(theme.palette.primary.main, 0.03)} 100%)`,
+        position: 'relative',
+        '&::after': {
+          content: '""',
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: '3px',
+          background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+        }
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {!isCollapsed && (
-            <div className="flex items-center space-x-3">
-              <div className="relative">
-                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <Shield className="h-6 w-6 text-white" />
-                </div>
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-slate-900"></div>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-white">
-                  ThreatScope
-                </h1>
-                <p className="text-xs text-slate-400 font-medium">Security Intelligence Platform</p>
-              </div>
-            </div>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Avatar
+                sx={{
+                  background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                  width: 40,
+                  height: 40,
+                  boxShadow: `0px 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
+                  border: `2px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                <Shield size={24} />
+              </Avatar>
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: 700, color: theme.palette.text.primary }}>
+                  FortiCore
+                </Typography>
+                <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
+                  Dashboard
+                </Typography>
+              </Box>
+            </Box>
           )}
-          <button
+          <IconButton
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
+            size="small"
+            sx={{
+              color: theme.palette.text.secondary,
+              border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+              borderRadius: 2,
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                color: theme.palette.primary.main,
+                borderColor: theme.palette.primary.main,
+                transform: 'scale(1.05)'
+              }
+            }}
           >
-            {isCollapsed ? (
-              <ChevronRight className="h-4 w-4 text-slate-400" />
-            ) : (
-              <ChevronLeft className="h-4 w-4 text-slate-400" />
-            )}
-          </button>
-        </div>
-      </div>
+            {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+          </IconButton>
+        </Box>
+      </Box>
 
-      {/* Quick Actions */}
-      {!isCollapsed && (
-        <div className="mx-3 mb-4">
-          <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3">
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-              Quick Actions
-            </h3>
-            <div className="grid grid-cols-3 gap-2">
-              {quickActions.map((action, index) => {
-                const Icon = action.icon;
-                return (
-                  <button
-                    key={index}
-                    className="relative p-3 rounded-lg bg-slate-700 hover:bg-slate-600 transition-colors group"
-                    onClick={() => {
-                      if (action.name === 'Threat Hunt') {
-                        console.log('Opening threat hunt...');
-                      } else if (action.name === 'Alerts') {
-                        console.log('Opening alerts...');
-                      } else if (action.name === 'Live Feed') {
-                        console.log('Opening live feed...');
-                      }
-                    }}
-                  >
-                    <Icon className="h-4 w-4 text-slate-300 group-hover:text-white mb-1" />
-                    <p className="text-xs text-slate-300 group-hover:text-white font-medium">{action.name}</p>
-                    {action.badge && (
-                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                        {action.badge}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Navigation */}
-      <nav className="flex-1 px-3 space-y-2 overflow-y-auto custom-scrollbar">
-        {/* Main Navigation */}
-        <div>
-          {!isCollapsed && (
-            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">
-              <Eye className="h-3 w-3 mr-2 inline" />
+      {/* Main Navigation */}
+      <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+        {!isCollapsed && (
+          <Box sx={{ p: 2 }}>
+            <Typography
+              variant="overline"
+              sx={{
+                color: theme.palette.text.secondary,
+                fontWeight: 700,
+                letterSpacing: 1,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1
+              }}
+            >
+              <Eye size={12} />
               Intelligence Center
-            </h2>
-          )}
+            </Typography>
+          </Box>
+        )}
+
+        <List sx={{ px: 1 }}>
           {navigationItems.map((item) => {
             const Icon = item.icon;
             return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) =>
-                  `group relative block mb-2 transition-all duration-300 ${
-                    isActive ? 'scale-[1.02]' : 'hover:scale-[1.01]'
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <div
-                    className={`
-                      p-4 cursor-pointer transition-all duration-300 rounded-lg border
-                      ${isActive
-                        ? 'bg-blue-600/20 border-blue-400/50 shadow-lg'
-                        : 'bg-slate-800/30 border-slate-700 hover:bg-slate-700/50 hover:border-slate-600'
+              <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
+                <ListItemButton
+                  component={NavLink}
+                  to={item.path}
+                  sx={{
+                    borderRadius: 3,
+                    mx: 0.5,
+                    py: 1.5,
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&.active': {
+                      background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.15)} 0%, ${alpha(theme.palette.primary.main, 0.08)} 100%)`,
+                      borderLeft: `4px solid ${theme.palette.primary.main}`,
+                      boxShadow: `0px 4px 12px ${alpha(theme.palette.primary.main, 0.2)}`,
+                      transform: 'translateX(4px)',
+                      '& .MuiListItemIcon-root': {
+                        color: theme.palette.primary.main,
+                        transform: 'scale(1.1)'
+                      },
+                      '& .MuiListItemText-primary': {
+                        color: theme.palette.primary.main,
+                        fontWeight: 700
+                      },
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: `linear-gradient(90deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, transparent 100%)`,
+                        zIndex: -1
                       }
-                    `}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className={`p-2 rounded-lg ${
-                        isActive ? 'bg-blue-600' : 'bg-slate-700'
-                      }`}>
-                        <Icon className="h-5 w-5 text-white" />
-                      </div>
-                      {!isCollapsed && (
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <span className={`font-semibold ${
-                              isActive ? 'text-blue-300' : 'text-white group-hover:text-blue-300'
-                            }`}>
-                              {item.name}
-                            </span>
-                            <span className={`
-                              px-2 py-1 text-xs font-bold rounded-full
-                              ${isActive
-                                ? 'bg-blue-400/20 text-blue-300'
-                                : 'bg-slate-700 text-slate-300 group-hover:bg-slate-600'
-                              }
-                            `}>
-                              {item.count}
-                            </span>
-                          </div>
-                          <p className={`text-xs mt-1 ${
-                            isActive ? 'text-blue-400/80' : 'text-slate-400 group-hover:text-slate-300'
-                          }`}>
-                            {item.description}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </NavLink>
+                    },
+                    '&:hover': {
+                      bgcolor: alpha(theme.palette.primary.main, 0.08),
+                      transform: 'translateX(2px)',
+                      boxShadow: `0px 2px 8px ${alpha(theme.palette.primary.main, 0.15)}`,
+                      '& .MuiListItemIcon-root': {
+                        transform: 'scale(1.05)'
+                      }
+                    },
+                    '&:active': {
+                      transform: 'translateX(1px)'
+                    }
+                  }}
+                >
+                  <ListItemIcon sx={{
+                    minWidth: 40,
+                    transition: 'all 0.3s ease'
+                  }}>
+                    <Icon size={20} />
+                  </ListItemIcon>
+                  {!isCollapsed && (
+                    <ListItemText
+                      primary={item.name}
+                      secondary={item.description}
+                      primaryTypographyProps={{
+                        variant: 'body2',
+                        fontWeight: 500
+                      }}
+                      secondaryTypographyProps={{
+                        variant: 'caption'
+                      }}
+                    />
+                  )}
+                  {!isCollapsed && (
+                    <Chip
+                      label={item.count}
+                      size="small"
+                      sx={{
+                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        color: theme.palette.primary.main,
+                        fontWeight: 700,
+                        fontSize: '0.7rem',
+                        border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          bgcolor: alpha(theme.palette.primary.main, 0.15),
+                          transform: 'scale(1.05)'
+                        }
+                      }}
+                    />
+                  )}
+                </ListItemButton>
+              </ListItem>
             );
           })}
-        </div>
+        </List>
 
-        {/* Organization Management */}
-        <div className="pt-4">
-          {!isCollapsed && (
-            <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 px-3">
-              <Building className="h-3 w-3 mr-2 inline" />
-              Administration
-            </h2>
-          )}
-          {organizationItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) =>
-                  `group block mb-2 transition-all duration-300 ${
-                    isActive ? 'scale-[1.02]' : 'hover:scale-[1.01]'
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <div
-                    className={`
-                      p-3 cursor-pointer transition-all duration-300 rounded-lg border
-                      ${isActive
-                        ? 'bg-emerald-600/20 border-emerald-400/50'
-                        : 'bg-slate-800/30 border-slate-700 hover:bg-slate-700/50 hover:border-slate-600'
-                      }
-                    `}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <Icon className={`h-5 w-5 ${
-                        isActive ? 'text-emerald-400' : 'text-slate-400 group-hover:text-emerald-400'
-                      }`} />
-                      {!isCollapsed && (
-                        <div>
-                          <span className={`font-medium text-sm ${
-                            isActive ? 'text-emerald-300' : 'text-white group-hover:text-emerald-300'
-                          }`}>
-                            {item.name}
-                          </span>
-                          <p className={`text-xs ${
-                            isActive ? 'text-emerald-400/80' : 'text-slate-400 group-hover:text-slate-300'
-                          }`}>
-                            {item.description}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </NavLink>
-            );
-          })}
-        </div>
-      </nav>
+      </Box>
 
       {/* User Profile */}
-      <div className="p-3 space-y-3">
-
-        {/* User Profile */}
+      <Box sx={{ p: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
         {user && (
-          <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
-            <div className="flex items-center space-x-3">
-              <div className="relative">
-                <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
-                  <span className="text-sm font-bold text-white">
-                    {user.firstName?.charAt(0) || user.email?.charAt(0) || 'U'}
-                  </span>
-                </div>
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-slate-900 flex items-center justify-center">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                </div>
-              </div>
+          <Box
+            sx={{
+              background: `linear-gradient(135deg, ${alpha(theme.palette.background.paper, 0.9)} 0%, ${alpha(theme.palette.background.paper, 0.7)} 100%)`,
+              border: `2px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+              borderRadius: 3,
+              p: 2,
+              mb: 2,
+              transition: 'all 0.3s ease',
+              position: 'relative',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '3px',
+                background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+                borderRadius: '3px 3px 0 0'
+              },
+              '&:hover': {
+                borderColor: alpha(theme.palette.primary.main, 0.2),
+                boxShadow: `0px 4px 12px ${alpha(theme.palette.primary.main, 0.1)}`
+              }
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Badge
+                overlap="circular"
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                badgeContent={
+                  <Box
+                    sx={{
+                      width: 12,
+                      height: 12,
+                      bgcolor: theme.palette.success.main,
+                      borderRadius: '50%',
+                      border: `2px solid ${theme.palette.background.paper}`
+                    }}
+                  />
+                }
+              >
+                <Avatar
+                  sx={{
+                    background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                    width: 40,
+                    height: 40,
+                    fontWeight: 700,
+                    boxShadow: `0px 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
+                    border: `2px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  {user.firstName?.charAt(0) || user.email?.charAt(0) || 'U'}
+                </Avatar>
+              </Badge>
               {!isCollapsed && (
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-white truncate">
+                <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 600,
+                      color: theme.palette.text.primary,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}
+                  >
                     {user.firstName && user.lastName
                       ? `${user.firstName} ${user.lastName}`
                       : user.email
                     }
-                  </p>
-                  <p className="text-xs text-slate-400 truncate">
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: theme.palette.text.secondary,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}
+                  >
                     {user.organizationName || 'No Organization'}
-                  </p>
-                  <div className="flex items-center space-x-2 mt-1">
-                    <span className="text-xs bg-indigo-600/20 text-indigo-300 px-2 py-0.5 rounded">
-                      {user.role || 'User'}
-                    </span>
-                  </div>
-                </div>
+                  </Typography>
+                  <Box sx={{ mt: 0.5 }}>
+                    <Chip
+                      label={user.role || 'User'}
+                      size="small"
+                      sx={{
+                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        color: theme.palette.primary.main,
+                        fontSize: '0.7rem',
+                        height: 20,
+                        fontWeight: 700,
+                        border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          bgcolor: alpha(theme.palette.primary.main, 0.15),
+                          transform: 'scale(1.05)'
+                        }
+                      }}
+                    />
+                  </Box>
+                </Box>
               )}
-            </div>
-          </div>
+            </Box>
+          </Box>
         )}
 
         {/* Logout Button */}
-        <button
+        <Box
+          component="button"
           onClick={handleLogout}
-          className={`w-full bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex items-center justify-center space-x-2 ${isCollapsed ? 'p-3' : 'p-3'}`}
+          sx={{
+            width: '100%',
+            background: `linear-gradient(135deg, ${theme.palette.error.main} 0%, ${theme.palette.error.dark} 100%)`,
+            color: '#ffffff',
+            border: `2px solid ${alpha(theme.palette.error.main, 0.3)}`,
+            borderRadius: 3,
+            p: isCollapsed ? 1.5 : 2,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 1,
+            cursor: 'pointer',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            position: 'relative',
+            overflow: 'hidden',
+            boxShadow: `0px 4px 12px ${alpha(theme.palette.error.main, 0.3)}`,
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: '-100%',
+              width: '100%',
+              height: '100%',
+              background: `linear-gradient(90deg, transparent, ${alpha('#ffffff', 0.2)}, transparent)`,
+              transition: 'left 0.5s ease'
+            },
+            '&:hover': {
+              background: `linear-gradient(135deg, ${theme.palette.error.dark} 0%, #B71C1C 100%)`,
+              transform: 'translateY(-2px) scale(1.02)',
+              boxShadow: `0px 6px 20px ${alpha(theme.palette.error.main, 0.4)}`,
+              borderColor: alpha(theme.palette.error.main, 0.5),
+              '&::before': {
+                left: '100%'
+              }
+            },
+            '&:active': {
+              transform: 'translateY(-1px) scale(1.01)'
+            }
+          }}
         >
-          <LogOut className="h-4 w-4" />
-          {!isCollapsed && <span className="text-sm font-medium">Secure Logout</span>}
-        </button>
-      </div>
-    </div>
+          <LogOut size={18} />
+          {!isCollapsed && (
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              Secure Logout
+            </Typography>
+          )}
+        </Box>
+      </Box>
+    </Drawer>
   );
 };
 

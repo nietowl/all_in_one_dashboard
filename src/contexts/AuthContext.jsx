@@ -1,17 +1,9 @@
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { authAPI } from '../services/authAPI';
 import { setAuthUser, clearAuth, setInitialized } from '../store/slices/authSlice';
 
 const AuthContext = createContext();
-
-export const useAuthContext = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuthContext must be used within an AuthProvider');
-  }
-  return context;
-};
 
 export const AuthProvider = ({ children }) => {
   const dispatch = useDispatch();

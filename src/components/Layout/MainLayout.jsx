@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { Box, useTheme } from '@mui/material';
 import Sidebar from './Sidebar';
-import GlassPanel from '../UI/GlassPanel';
+import ThemeToggle from '../UI/ThemeToggle';
 import { fetchOrganizationData } from '../../store/slices/organizationSlice';
 
 const MainLayout = ({ children }) => {
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.auth);
-  const [sidebarWidth, setSidebarWidth] = useState(320); // Default width for new sidebar
+  const theme = useTheme();
 
   useEffect(() => {
     // Fetch organization data when layout mounts
@@ -17,27 +18,36 @@ const MainLayout = ({ children }) => {
   }, [dispatch, user?.organizationId]);
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-
+    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       {/* Sidebar */}
-      <div className="fixed left-0 top-0 h-full z-50">
-        <Sidebar />
-      </div>
+      <Sidebar />
 
       {/* Main Content */}
-      <div
-        className="transition-all duration-300 relative z-10"
-        style={{ marginLeft: sidebarWidth }}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          bgcolor: theme.palette.background.default,
+          transition: 'margin 0.3s ease-in-out',
+          minHeight: '100vh',
+          position: 'relative'
+        }}
       >
-        <div className="min-h-screen p-6">
+        {/* Global Theme Toggle - Top Right */}
+        <Box sx={{
+          position: 'fixed',
+          top: 20,
+          right: 24,
+          zIndex: 1200
+        }}>
+          <ThemeToggle />
+        </Box>
 
-          {/* Main Content Area */}
-          <div className="relative">
-            {children}
-          </div>
-        </div>
-      </div>
-    </div>
+        <Box sx={{ p: 3, height: '100%' }}>
+          {children}
+        </Box>
+      </Box>
+    </Box>
   );
 };
 

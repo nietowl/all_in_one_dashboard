@@ -1,202 +1,258 @@
 import React, { useState } from 'react';
-import { Search, Filter, Calendar, Globe, RefreshCw } from 'lucide-react';
+import {
+  Paper,
+  Box,
+  Typography,
+  Grid,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Button,
+  Chip,
+  Collapse,
+  IconButton,
+  useTheme,
+  alpha,
+  CircularProgress
+} from '@mui/material';
+import { Search, Filter, Calendar, Globe, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 
 const FilterPanel = ({ onFilterChange, loading }) => {
+  const theme = useTheme();
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
-  
+
   const months = [
     'january', 'february', 'march', 'april', 'may', 'june',
     'july', 'august', 'september', 'october', 'november', 'december'
   ];
 
-const [filters, setFilters] = useState({
-  domain: 'dell.com', // Changed from 'adani.com'
-  year: currentYear.toString(),
-  month: 'february',
-  start: 1,
-  max: 50
-});
+  const [filters, setFilters] = useState({
+    domain: 'forticore.in',
+    year: currentYear.toString(),
+    month: 'february',
+    start: 1,
+    max: 50
+  });
 
-  const [customDomain, setCustomDomain] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
-
-  const popularDomains = [
-    'adani.com',
-    'google.com',
-    'microsoft.com',
-    'amazon.com',
-    'facebook.com',
-    'apple.com',
-    'netflix.com',
-    'twitter.com'
-  ];
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
   const handleSearch = () => {
-    const domainToUse = customDomain || filters.domain;
-    onFilterChange({ ...filters, domain: domainToUse });
-  };
-
-  const handleQuickDomain = (domain) => {
-    setCustomDomain('');
-    setFilters(prev => ({ ...prev, domain }));
-    onFilterChange({ ...filters, domain });
+    onFilterChange({ ...filters });
   };
 
   return (
-    <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl p-6 mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-2">
-          <Filter className="w-5 h-5 text-blue-400" />
-          <h3 className="text-lg font-semibold text-white">Filters</h3>
-        </div>
-        <button
+    <Paper
+      sx={{
+        p: 3,
+        background: `linear-gradient(135deg, ${alpha(theme.palette.background.paper, 0.9)} 0%, ${alpha(theme.palette.background.paper, 0.7)} 100%)`,
+        border: `2px solid ${theme.palette.divider}`,
+        borderRadius: 3,
+        boxShadow: `0px 4px 12px ${alpha(theme.palette.primary.main, 0.1)}`
+      }}
+    >
+      {/* Header */}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Filter size={20} color={theme.palette.primary.main} />
+          <Typography variant="h6" sx={{ fontWeight: 600, color: theme.palette.text.primary }}>
+            Intelligence Filters
+          </Typography>
+        </Box>
+        <Button
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className="text-sm text-slate-400 hover:text-white transition-colors"
+          endIcon={showAdvanced ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          sx={{
+            color: theme.palette.text.secondary,
+            fontWeight: 500,
+            '&:hover': {
+              color: theme.palette.primary.main,
+              bgcolor: alpha(theme.palette.primary.main, 0.05)
+            }
+          }}
         >
           {showAdvanced ? 'Hide Advanced' : 'Show Advanced'}
-        </button>
-      </div>
+        </Button>
+      </Box>
 
-      <div className="mb-4">
-        <label className="text-slate-400 text-sm mb-2 block">Quick Domain Select</label>
-        <div className="flex flex-wrap gap-2">
-          {popularDomains.map(domain => (
-            <button
-              key={domain}
-              onClick={() => handleQuickDomain(domain)}
-              className={`px-3 py-1 rounded-lg text-sm transition-colors ${
-                filters.domain === domain
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-              }`}
-            >
-              {domain}
-            </button>
-          ))}
-        </div>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-        <div>
-          <label className="text-slate-400 text-sm mb-2 block flex items-center">
-            <Globe className="w-4 h-4 mr-1" />
-            Custom Domain
-          </label>
-          <input
-            type="text"
-            value={customDomain}
-            onChange={(e) => setCustomDomain(e.target.value)}
+      {/* Main Filters */}
+      <Grid container spacing={3} sx={{ mb: 3 }}>
+        <Grid item xs={12} md={3}>
+          <TextField
+            fullWidth
+            label="Target Domain"
+            value={filters.domain}
+            onChange={(e) => handleFilterChange('domain', e.target.value)}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && !loading) {
+                handleSearch();
+              }
+            }}
             placeholder="Enter domain..."
-            className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
+            InputProps={{
+              startAdornment: <Globe size={16} style={{ marginRight: 8, color: theme.palette.text.secondary }} />
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 2,
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: theme.palette.primary.main
+                }
+              }
+            }}
           />
-        </div>
+        </Grid>
 
-        <div>
-          <label className="text-slate-400 text-sm mb-2 block flex items-center">
-            <Calendar className="w-4 h-4 mr-1" />
-            Year
-          </label>
-          <select
-            value={filters.year}
-            onChange={(e) => handleFilterChange('year', e.target.value)}
-            className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-          >
-            {years.map(year => (
-              <option key={year} value={year}>{year}</option>
-            ))}
-          </select>
-        </div>
+        <Grid item xs={12} md={2}>
+          <FormControl fullWidth>
+            <InputLabel>Year</InputLabel>
+            <Select
+              value={filters.year}
+              onChange={(e) => handleFilterChange('year', e.target.value)}
+              label="Year"
+              startAdornment={<Calendar size={16} style={{ marginRight: 8, color: theme.palette.text.secondary }} />}
+              sx={{ borderRadius: 2 }}
+            >
+              {years.map(year => (
+                <MenuItem key={year} value={year}>{year}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
 
-        <div>
-          <label className="text-slate-400 text-sm mb-2 block flex items-center">
-            <Calendar className="w-4 h-4 mr-1" />
-            Month
-          </label>
-          <select
-            value={filters.month}
-            onChange={(e) => handleFilterChange('month', e.target.value)}
-            className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none capitalize"
-          >
-            {months.map(month => (
-              <option key={month} value={month} className="capitalize">{month}</option>
-            ))}
-          </select>
-        </div>
+        <Grid item xs={12} md={2}>
+          <FormControl fullWidth>
+            <InputLabel>Month</InputLabel>
+            <Select
+              value={filters.month}
+              onChange={(e) => handleFilterChange('month', e.target.value)}
+              label="Month"
+              startAdornment={<Calendar size={16} style={{ marginRight: 8, color: theme.palette.text.secondary }} />}
+              sx={{ borderRadius: 2 }}
+            >
+              {months.map(month => (
+                <MenuItem key={month} value={month} sx={{ textTransform: 'capitalize' }}>
+                  {month}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
 
-        <div className="flex items-end">
-          <button
+        <Grid item xs={12} md={5} sx={{ display: 'flex', alignItems: 'end' }}>
+          <Button
             onClick={handleSearch}
             disabled={loading}
-            className="w-full px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 disabled:from-slate-600 disabled:to-slate-600 rounded-lg flex items-center justify-center space-x-2 transition-colors font-semibold"
+            variant="contained"
+            fullWidth
+            startIcon={loading ? <CircularProgress size={16} /> : <Search size={16} />}
+            sx={{
+              height: 56,
+              background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+              boxShadow: `0px 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
+              fontSize: '1rem',
+              fontWeight: 600,
+              borderRadius: 2,
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: `0px 6px 20px ${alpha(theme.palette.primary.main, 0.4)}`
+              },
+              '&:disabled': {
+                background: alpha(theme.palette.action.disabled, 0.12)
+              }
+            }}
           >
-            {loading ? (
-              <>
-                <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>Loading...</span>
-              </>
-            ) : (
-              <>
-                <Search className="w-4 h-4" />
-                <span>Search</span>
-              </>
-            )}
-          </button>
-        </div>
-      </div>
+            {loading ? 'Searching...' : 'Search Intelligence'}
+          </Button>
+        </Grid>
+      </Grid>
 
-      {showAdvanced && (
-        <div className="border-t border-slate-700 pt-4">
-          <h4 className="text-sm font-semibold text-slate-300 mb-3">Advanced Options</h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="text-slate-400 text-sm mb-2 block">Start Index</label>
-              <input
+      {/* Advanced Options */}
+      <Collapse in={showAdvanced}>
+        <Box sx={{ borderTop: `1px solid ${theme.palette.divider}`, pt: 3 }}>
+          <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.text.primary, mb: 2 }}>
+            Advanced Options
+          </Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                label="Start Index"
                 type="number"
                 value={filters.start}
                 onChange={(e) => handleFilterChange('start', parseInt(e.target.value) || 1)}
-                min="1"
-                className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                inputProps={{ min: 1 }}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
               />
-            </div>
+            </Grid>
 
-            <div>
-              <label className="text-slate-400 text-sm mb-2 block">Max Results</label>
-              <select
-                value={filters.max}
-                onChange={(e) => handleFilterChange('max', parseInt(e.target.value))}
-                className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-              >
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-                <option value={200}>200</option>
-              </select>
-            </div>
+            <Grid item xs={12} md={4}>
+              <FormControl fullWidth>
+                <InputLabel>Max Results</InputLabel>
+                <Select
+                  value={filters.max}
+                  onChange={(e) => handleFilterChange('max', parseInt(e.target.value))}
+                  label="Max Results"
+                  sx={{ borderRadius: 2 }}
+                >
+                  <MenuItem value={10}>10</MenuItem>
+                  <MenuItem value={25}>25</MenuItem>
+                  <MenuItem value={50}>50</MenuItem>
+                  <MenuItem value={100}>100</MenuItem>
+                  <MenuItem value={200}>200</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
 
-            <div>
-              <label className="text-slate-400 text-sm mb-2 block">Active Domain</label>
-              <div className="px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-green-400 font-mono text-sm">
-                {customDomain || filters.domain}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                label="Active Domain"
+                value={filters.domain}
+                disabled
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    bgcolor: alpha(theme.palette.success.main, 0.1),
+                    color: theme.palette.success.main
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: theme.palette.success.main
+                  }
+                }}
+              />
+            </Grid>
+          </Grid>
+        </Box>
+      </Collapse>
 
-      <div className="mt-4 p-3 bg-slate-900/50 rounded-lg border border-slate-700">
-        <p className="text-xs text-slate-400">
-          <span className="font-semibold text-slate-300">Query:</span>{' '}
-          {customDomain || filters.domain} • {filters.month} {filters.year} • 
-          Showing {filters.start} to {filters.start + filters.max - 1}
-        </p>
-      </div>
-    </div>
+      {/* Query Summary */}
+      <Paper
+        sx={{
+          mt: 3,
+          p: 2,
+          bgcolor: alpha(theme.palette.background.default, 0.5),
+          border: `1px solid ${theme.palette.divider}`,
+          borderRadius: 2
+        }}
+      >
+        <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
+          <Box component="span" sx={{ fontWeight: 600, color: theme.palette.text.primary }}>
+            Query:
+          </Box>{' '}
+          {filters.domain} • {filters.month} {filters.year} •
+          Records {filters.start} to {filters.start + filters.max - 1}
+        </Typography>
+      </Paper>
+    </Paper>
   );
 };
 

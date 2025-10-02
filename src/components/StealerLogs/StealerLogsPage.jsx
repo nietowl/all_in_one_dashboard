@@ -4,7 +4,7 @@ import {
   Download, Eye, Shield, Lock, Calendar, MapPin, HardDrive, Wifi,
   TrendingUp, BarChart3, PieChart, RefreshCw, Settings, ChevronDown
 } from 'lucide-react';
-import { fetchStealerLogs, fetchStealerStats } from '../../services/stealerLogsAPI';
+import { fetchStealerStats } from '../../services/stealerLogsAPI';
 import Card3D from '../UI/Card3D';
 import Button3D from '../UI/Button3D';
 import GlassPanel from '../UI/GlassPanel';
@@ -27,10 +27,10 @@ const StealerLogsPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedMachine, setSelectedMachine] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(''); // eslint-disable-line no-unused-vars
   const [viewMode, setViewMode] = useState('grid'); // grid, table, map
   const [sortBy, setSortBy] = useState('date');
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState({ // eslint-disable-line no-unused-vars
     country: '',
     malwareFamily: '',
     dateRange: '7d',
@@ -40,60 +40,60 @@ const StealerLogsPage = () => {
     max: 50
   });
 
-  // Mock data for demo
-  const mockMachines = [
-    {
-      id: 1,
-      computerName: 'DESKTOP-A47K2L9',
-      ip: '192.168.1.105',
-      country: 'United States',
-      countryCode: 'US',
-      city: 'New York',
-      malwareFamily: 'RedLine',
-      infectionDate: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      credentialsCount: 47,
-      browsersCount: 5,
-      systemInfo: 'Windows 11 Pro',
-      riskLevel: 'Critical',
-      status: 'Active'
-    },
-    {
-      id: 2,
-      computerName: 'LAPTOP-X1Y2Z3',
-      ip: '10.0.0.24',
-      country: 'Germany',
-      countryCode: 'DE',
-      city: 'Berlin',
-      malwareFamily: 'Vidar',
-      infectionDate: new Date(Date.now() - 5 * 60 * 60 * 1000),
-      credentialsCount: 23,
-      browsersCount: 3,
-      systemInfo: 'Windows 10 Home',
-      riskLevel: 'High',
-      status: 'Active'
-    },
-    {
-      id: 3,
-      computerName: 'WORKSTATION-DEV',
-      ip: '172.16.0.50',
-      country: 'United Kingdom',
-      countryCode: 'GB',
-      city: 'London',
-      malwareFamily: 'Raccoon',
-      infectionDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
-      credentialsCount: 89,
-      browsersCount: 7,
-      systemInfo: 'Windows 11 Enterprise',
-      riskLevel: 'Critical',
-      status: 'Resolved'
-    }
-  ];
-
   const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
+      // Mock data for demo
+      const mockMachines = [
+        {
+          id: 1,
+          computerName: 'DESKTOP-A47K2L9',
+          ip: '192.168.1.105',
+          country: 'United States',
+          countryCode: 'US',
+          city: 'New York',
+          malwareFamily: 'RedLine',
+          infectionDate: new Date(Date.now() - 2 * 60 * 60 * 1000),
+          credentialsCount: 47,
+          browsersCount: 5,
+          systemInfo: 'Windows 11 Pro',
+          riskLevel: 'Critical',
+          status: 'Active'
+        },
+        {
+          id: 2,
+          computerName: 'LAPTOP-X1Y2Z3',
+          ip: '10.0.0.24',
+          country: 'Germany',
+          countryCode: 'DE',
+          city: 'Berlin',
+          malwareFamily: 'Vidar',
+          infectionDate: new Date(Date.now() - 5 * 60 * 60 * 1000),
+          credentialsCount: 23,
+          browsersCount: 3,
+          systemInfo: 'Windows 10 Home',
+          riskLevel: 'High',
+          status: 'Active'
+        },
+        {
+          id: 3,
+          computerName: 'WORKSTATION-DEV',
+          ip: '172.16.0.50',
+          country: 'United Kingdom',
+          countryCode: 'GB',
+          city: 'London',
+          malwareFamily: 'Raccoon',
+          infectionDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
+          credentialsCount: 89,
+          browsersCount: 7,
+          systemInfo: 'Windows 11 Enterprise',
+          riskLevel: 'Critical',
+          status: 'Resolved'
+        }
+      ];
+
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       setMachines(mockMachines);
@@ -103,7 +103,7 @@ const StealerLogsPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [searchTerm, filters]);
+  }, []);
 
   const loadStats = async () => {
     try {
@@ -134,27 +134,12 @@ const StealerLogsPage = () => {
       {/* Header Section */}
       <GlassPanel variant="cyberpunk" className="p-6">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-red-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
-              Stealer Intelligence
-            </h1>
-            <p className="text-lg text-gray-300 mt-2">Advanced malware analysis & credential monitoring</p>
-            <div className="flex items-center space-x-4 mt-3">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-red-400 rounded-full animate-pulse"></div>
-                <span className="text-sm text-gray-400">Live Monitoring Active</span>
-              </div>
-              <div className="text-sm text-gray-400">
-                Last Scan: {new Date().toLocaleTimeString()}
-              </div>
-            </div>
-          </div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-red-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
+            Stealer Intelligence
+          </h1>
           <div className="flex items-center space-x-3">
             <Button3D variant="success" icon={Download}>
               Export Data
-            </Button3D>
-            <Button3D variant="primary" icon={RefreshCw} onClick={loadData}>
-              Refresh
             </Button3D>
           </div>
         </div>

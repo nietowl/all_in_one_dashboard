@@ -1,26 +1,50 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { RefreshCw } from 'lucide-react';
-import { fetchCredentials } from '../../services/combolistAPI';
+import {
+  Container,
+  Box,
+  Typography,
+  Tabs,
+  Tab,
+  Paper,
+  Button,
+  Chip,
+  useTheme,
+  alpha,
+  CircularProgress
+} from '@mui/material';
+import { RefreshCw, Database, Shield, AlertTriangle } from 'lucide-react';
+import { fetchStealerCredentials, fetchStealerStats } from '../../services/stealerIntelAPI';
 import CombolistStats from './CombolistStats';
 import FilterPanel from './FilterPanel';
 import CredentialsTable from './CredentialsTable';
 import CombolistCharts from './CombolistCharts';
 import ErrorDisplay from '../Common/ErrorDisplay';
+import { useAppTheme } from '../../hooks/useAppTheme';
 
 const CombolistPage = () => {
+  const theme = useTheme();
+  const { isDarkMode } = useAppTheme(); // eslint-disable-line no-unused-vars
+
   const [activeTab, setActiveTab] = useState('overview');
-  const [credentialData, setCredentialData] = useState({ 
-    data: [], 
+  const [credentialData, setCredentialData] = useState({
+    data: [],
     totalEntries: 0,
     returnedEntries: 0,
     message: '',
     passwordType: 'Unknown'
   });
+  const [stats, setStats] = useState({
+    totalCredentials: 0,
+    totalDomains: 0,
+    avgCredentialsPerDomain: 0,
+    securityLevel: 'Unknown',
+    lastUpdated: new Date().toISOString()
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+
   const [currentFilters, setCurrentFilters] = useState({
-    domain: 'dell.com',
+    domain: 'forticore.in',
     year: '2025',
     month: 'february',
     start: 1,
@@ -28,39 +52,43 @@ const CombolistPage = () => {
   });
 
   const fetchData = useCallback(async (filters = currentFilters) => {
-    console.log('🚀 Fetching data with filters:', filters);
-    
+    console.log('🚀 Fetching stealer data with filters:', filters);
+
     setLoading(true);
     setError(null);
-    
+
     try {
-      const data = await fetchCredentials(
+      // Fetch credentials data
+      const data = await fetchStealerCredentials(
         filters.year,
         filters.month,
         filters.domain,
         filters.start,
         filters.max
       );
-      
-      console.log('✅ Raw API data:', data);
-      console.log('✅ Data array:', data.data);
-      console.log('✅ Data array length:', data.data?.length);
-      
+
+      console.log('✅ Raw stealer API data:', data);
+
       if (!data) {
-        throw new Error('No data received from API');
+        throw new Error('No data received from stealer intelligence API');
       }
-      
-      const newState = {
+
+      const newCredentialState = {
         data: data.data || [],
         totalEntries: data.totalEntries || 0,
         returnedEntries: data.returnedEntries || 0,
         message: data.message || '',
-        passwordType: data.passwordType || 'Encrypted'
+        passwordType: data.passwordType || 'Mixed'
       };
-      
-      console.log('✅ Setting state to:', newState);
-      setCredentialData(newState);
-      
+
+      console.log('✅ Setting credential state to:', newCredentialState);
+      setCredentialData(newCredentialState);
+
+      // Fetch statistics
+      const statsData = await fetchStealerStats(filters);
+      console.log('✅ Stats data:', statsData);
+      setStats(statsData);
+
       console.log('✅ Data loaded successfully!');
     } catch (err) {
       console.error('❌ Fetch error:', err);
@@ -89,74 +117,157 @@ const CombolistPage = () => {
   };
 
   return (
-    <div>
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-4xl font-bold text-white mb-2">Combolist Database</h2>
-            <p className="text-slate-400">
-              Search and analyze credential combinations • {currentFilters.domain}
-            </p>
-            {/* Debug Info */}
-            <p className="text-xs text-slate-500 mt-1">
-              Loaded: {credentialData.data?.length || 0} / {credentialData.totalEntries || 0} entries
-            </p>
-          </div>
-          <div className="flex items-center space-x-4">
+    <Container maxWidth="xl" sx={{ py: 3 }}>
+      {/* Header Section */}
+      <Paper
+        sx={{
+          p: 4,
+          mb: 4,
+          background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.08)} 0%, ${alpha(theme.palette.primary.main, 0.03)} 100%)`,
+          border: `2px solid ${theme.palette.divider}`,
+          borderRadius: 3,
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '4px',
+            background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+            borderRadius: '3px 3px 0 0'
+          }
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+          <Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+              <Database size={32} color={theme.palette.primary.main} />
+              <Typography variant="h3" sx={{ fontWeight: 800, color: theme.palette.text.primary }}>
+                Combolist
+              </Typography>
+            </Box>
+            <Typography variant="h6" sx={{ color: theme.palette.text.secondary, mb: 1 }}>
+              Advanced stealer malware credential analysis • {currentFilters.domain}
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <Chip
+                icon={<Shield size={16} />}
+                label={`${credentialData.data?.length || 0} / ${credentialData.totalEntries || 0} Records`}
+                sx={{
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  color: theme.palette.primary.main,
+                  fontWeight: 600,
+                  border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`
+                }}
+              />
+              <Chip
+                icon={<AlertTriangle size={16} />}
+                label={stats.securityLevel}
+                color={stats.securityLevel === 'High Risk' ? 'error' :
+                       stats.securityLevel === 'Medium Risk' ? 'warning' : 'success'}
+                sx={{ fontWeight: 600 }}
+              />
+            </Box>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             {loading ? (
-              <div className="px-4 py-2 bg-yellow-500/10 border border-yellow-500/20 rounded-lg flex items-center space-x-2">
-                <RefreshCw className="w-4 h-4 animate-spin text-yellow-400" />
-                <span className="text-yellow-400 text-sm font-semibold">Loading...</span>
-              </div>
+              <Chip
+                icon={<CircularProgress size={16} />}
+                label="Loading..."
+                sx={{
+                  bgcolor: alpha(theme.palette.warning.main, 0.1),
+                  color: theme.palette.warning.main,
+                  fontWeight: 600,
+                  border: `1px solid ${alpha(theme.palette.warning.main, 0.2)}`
+                }}
+              />
             ) : (
-              <div className="px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-lg">
-                <span className="text-green-400 text-sm font-semibold">● LIVE</span>
-              </div>
+              <Chip
+                label="● LIVE"
+                sx={{
+                  bgcolor: alpha(theme.palette.success.main, 0.1),
+                  color: theme.palette.success.main,
+                  fontWeight: 600,
+                  border: `1px solid ${alpha(theme.palette.success.main, 0.2)}`
+                }}
+              />
             )}
-            <button
+            <Button
               onClick={() => {
                 console.log('🔄 Manual refresh clicked');
                 fetchData(currentFilters);
               }}
               disabled={loading}
-              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-slate-600 rounded-lg flex items-center space-x-2 transition-colors"
-            >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-              <span>Refresh</span>
-            </button>
-          </div>
-        </div>
-
-        <FilterPanel onFilterChange={handleFilterChange} loading={loading} />
-        
-        {error && <ErrorDisplay error={error} onRetry={() => fetchData(currentFilters)} />}
-
-        <div className="flex space-x-2 border-b border-slate-700 mb-6">
-          {['overview', 'credentials', 'analytics'].map(tab => (
-            <button
-              key={tab}
-              onClick={() => {
-                console.log('Tab changed to:', tab);
-                setActiveTab(tab);
+              variant="contained"
+              startIcon={<RefreshCw size={16} className={loading ? 'animate-spin' : ''} />}
+              sx={{
+                background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                boxShadow: `0px 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: `0px 6px 20px ${alpha(theme.palette.primary.main, 0.4)}`
+                }
               }}
-              className={`px-6 py-3 font-medium capitalize transition-all ${
-                activeTab === tab
-                  ? 'text-blue-400 border-b-2 border-blue-400'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
             >
-              {tab}
-            </button>
-          ))}
-        </div>
-      </div>
+              Refresh
+            </Button>
+          </Box>
+        </Box>
+      </Paper>
+
+      {/* Filter Panel */}
+      <Box sx={{ mb: 4 }}>
+        <FilterPanel onFilterChange={handleFilterChange} loading={loading} />
+      </Box>
+
+      {/* Error Display */}
+      {error && (
+        <Box sx={{ mb: 4 }}>
+          <ErrorDisplay error={error} onRetry={() => fetchData(currentFilters)} />
+        </Box>
+      )}
+
+      {/* Tabs */}
+      <Paper
+        sx={{
+          mb: 4,
+          borderRadius: 3,
+          border: `1px solid ${theme.palette.divider}`
+        }}
+      >
+        <Tabs
+          value={activeTab}
+          onChange={(event, newValue) => {
+            console.log('Tab changed to:', newValue);
+            setActiveTab(newValue);
+          }}
+          sx={{
+            '& .MuiTab-root': {
+              textTransform: 'none',
+              fontWeight: 600,
+              fontSize: '1rem',
+              minHeight: 60
+            },
+            '& .MuiTabs-indicator': {
+              height: 3,
+              background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`
+            }
+          }}
+        >
+          <Tab label="Overview" value="overview" />
+          <Tab label="Credentials" value="credentials" />
+          <Tab label="Analytics" value="analytics" />
+        </Tabs>
+      </Paper>
 
       {/* Tab Content */}
       {activeTab === 'overview' && (
-        <div>
-          <CombolistStats credentialData={credentialData} />
+        <Box>
+          <CombolistStats credentialData={credentialData} stats={stats} />
           <CombolistCharts credentialData={credentialData} />
-        </div>
+        </Box>
       )}
 
       {activeTab === 'credentials' && (
@@ -172,7 +283,7 @@ const CombolistPage = () => {
       {activeTab === 'analytics' && (
         <CombolistCharts credentialData={credentialData} showDetailed />
       )}
-    </div>
+    </Container>
   );
 };
 

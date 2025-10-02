@@ -9,19 +9,29 @@ const DarkwebPage = () => {
   const [activeSection, setActiveSection] = useState('overview');
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const loadStats = async () => {
       try {
         const data = await fetchDarkwebStats();
         setStats(data);
+        setError(null);
       } catch (error) {
         console.error('Error loading stats:', error);
+        setError('Unable to load statistics. Showing cached data.');
+        // Set default mock stats to prevent crashes
+        setStats({
+          totalForumPosts: 0,
+          totalTelegramChannels: 0,
+          activeSources: 0,
+          recentBreaches: 0
+        });
       } finally {
         setLoading(false);
       }
     };
-    
+
     loadStats();
   }, []);
 
@@ -58,6 +68,14 @@ const DarkwebPage = () => {
           );
         })}
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="mb-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 flex items-center space-x-3">
+          <Shield className="w-5 h-5 text-yellow-400" />
+          <p className="text-yellow-300 text-sm">{error}</p>
+        </div>
+      )}
 
       {/* Content */}
       {activeSection === 'overview' && (

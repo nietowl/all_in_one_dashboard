@@ -31,21 +31,22 @@ const ForumsPage = () => {
         </div>
       </div>
 
-      {/* Placeholder */}
-      <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl p-12 text-center">
-        <MessageSquare className="w-20 h-20 text-slate-600 mx-auto mb-4" />
-        <h3 className="text-2xl font-semibold text-slate-300 mb-3">Forums Module</h3>
-        <p className="text-slate-400 mb-6 max-w-md mx-auto">
-          This module will display darkweb forum posts, discussions, and threat intelligence.
-          Configure your API endpoint to enable this feature.
+      {/* Coming Soon Placeholder */}
+      <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur border-2 border-blue-500/30 rounded-xl p-12 text-center shadow-lg shadow-blue-500/10">
+        <MessageSquare className="w-20 h-20 text-blue-400 mx-auto mb-4 animate-pulse" />
+        <h3 className="text-3xl font-bold text-white mb-3">🚀 Coming Soon</h3>
+        <h4 className="text-xl font-semibold text-blue-400 mb-4">Darkweb Forums Intelligence</h4>
+        <p className="text-slate-300 mb-2 max-w-md mx-auto">
+          This feature will provide comprehensive monitoring of darkweb forums, including:
         </p>
-        <div className="flex items-center justify-center space-x-4">
-          <button className="px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg font-semibold transition-colors">
-            Configure API
-          </button>
-          <button className="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-semibold transition-colors">
-            View Documentation
-          </button>
+        <ul className="text-slate-400 mb-6 max-w-md mx-auto text-left list-disc list-inside space-y-1">
+          <li>Real-time forum post tracking</li>
+          <li>Threat actor identification</li>
+          <li>Data breach intelligence</li>
+          <li>Marketplace monitoring</li>
+        </ul>
+        <div className="inline-block px-6 py-3 bg-blue-500/20 border border-blue-500/50 rounded-lg text-blue-300 font-semibold">
+          Feature In Development
         </div>
       </div>
     </div>

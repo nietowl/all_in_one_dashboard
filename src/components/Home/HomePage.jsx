@@ -1,12 +1,26 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import {
+  Container,
+  Grid,
+  Typography,
+  Box,
+  Paper,
+  Button,
+  useTheme,
+  alpha,
+  Chip
+} from '@mui/material';
+import {
   Shield, AlertTriangle, Database, Globe, TrendingUp, TrendingDown,
-  Eye, BarChart3, ArrowRight, Download, RefreshCw, Search
+  ArrowRight
 } from 'lucide-react';
+import { useAppTheme } from '../../hooks/useAppTheme';
 
 const HomePage = () => {
   const { user } = useSelector(state => state.auth);
+  const theme = useTheme();
+  const { isDarkMode } = useAppTheme(); // eslint-disable-line no-unused-vars
 
   const threatStats = [
     {
@@ -15,9 +29,7 @@ const HomePage = () => {
       change: '+12%',
       trend: 'up',
       icon: AlertTriangle,
-      color: 'red',
-      bgColor: 'bg-red-600/20',
-      iconBg: 'bg-red-600'
+      color: theme.palette.error.main
     },
     {
       title: 'Assets Monitored',
@@ -25,9 +37,7 @@ const HomePage = () => {
       change: '+3%',
       trend: 'up',
       icon: Shield,
-      color: 'blue',
-      bgColor: 'bg-blue-600/20',
-      iconBg: 'bg-blue-600'
+      color: theme.palette.primary.main
     },
     {
       title: 'Compromised Credentials',
@@ -35,9 +45,7 @@ const HomePage = () => {
       change: '+8%',
       trend: 'up',
       icon: Database,
-      color: 'orange',
-      bgColor: 'bg-orange-600/20',
-      iconBg: 'bg-orange-600'
+      color: theme.palette.warning.main
     },
     {
       title: 'Dark Web Mentions',
@@ -45,9 +53,7 @@ const HomePage = () => {
       change: '-5%',
       trend: 'down',
       icon: Globe,
-      color: 'green',
-      bgColor: 'bg-emerald-600/20',
-      iconBg: 'bg-emerald-600'
+      color: theme.palette.success.main
     }
   ];
 
@@ -81,179 +87,249 @@ const HomePage = () => {
     }
   ];
 
-  const quickActions = [
-    { name: 'Threat Hunt', icon: Eye },
-    { name: 'Generate Report', icon: BarChart3 },
-    { name: 'Export Data', icon: Download },
-    { name: 'System Scan', icon: RefreshCw }
-  ];
-
   return (
-    <div className="space-y-8">
-      {/* Header Section */}
-      <div className="space-y-4">
-        <div className="bg-gray-800/30 border border-gray-700 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-semibold text-white">
-                Welcome back, {user?.firstName || 'Security Analyst'}
-              </h1>
-              <p className="text-sm text-gray-400 mt-1">Security Operations Dashboard</p>
-              {user?.organizationName && (
-                <div className="flex items-center space-x-2 mt-2">
-                  <span className="px-2 py-1 bg-gray-700 text-gray-300 rounded text-xs">
-                    {user.organizationName}
-                  </span>
-                  <span className="px-2 py-1 bg-gray-700 text-gray-300 rounded text-xs">
-                    {user.role}
-                  </span>
-                </div>
-              )}
-            </div>
-            <div className="text-right">
-              <div className="text-xs text-gray-500 mb-1">Last Update</div>
-              <div className="text-sm text-gray-300">{new Date().toLocaleTimeString()}</div>
-            </div>
-          </div>
-        </div>
+    <Container maxWidth="xl" sx={{ py: 3 }}>
+      {/* Clean Header */}
+      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h3" sx={{
+          fontWeight: 800,
+          color: theme.palette.text.primary,
+          letterSpacing: '-0.02em'
+        }}>
+          Threat Intelligence
+        </Typography>
 
-        {/* Compact Search Bar */}
-        <div className="bg-slate-800/30 border border-slate-700 rounded-lg p-3">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search threats, IOCs, domains..."
-              className="w-full pl-10 pr-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        {user?.organizationName && (
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Chip
+              label={user.organizationName}
+              size="small"
+              sx={{
+                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                color: theme.palette.primary.main,
+                fontWeight: 600,
+                border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`
+              }}
             />
-          </div>
-        </div>
+            <Chip
+              label={user.role}
+              size="small"
+              sx={{
+                bgcolor: alpha(theme.palette.secondary.main, 0.1),
+                color: theme.palette.secondary.main,
+                fontWeight: 600,
+                border: `1px solid ${alpha(theme.palette.secondary.main, 0.2)}`
+              }}
+            />
+          </Box>
+        )}
+      </Box>
 
-      </div>
-
-      {/* Threat Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Clean Inline Stats */}
+      <Box sx={{ mb: 3, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
         {threatStats.map((stat, index) => {
           const Icon = stat.icon;
           const TrendIcon = stat.trend === 'up' ? TrendingUp : TrendingDown;
 
           return (
-            <div key={index} className={`${stat.bgColor} border border-slate-600 rounded-lg p-4`}>
-              <div className="flex items-center justify-between mb-3">
-                <div className={`p-2 rounded ${stat.iconBg}`}>
-                  <Icon className="h-5 w-5 text-white" />
-                </div>
-                <div className={`flex items-center space-x-1 ${
-                  stat.trend === 'up' ? 'text-red-400' : 'text-green-400'
-                }`}>
-                  <TrendIcon className="h-3 w-3" />
-                  <span className="text-xs">{stat.change}</span>
-                </div>
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-white mb-1">{stat.value}</h3>
-                <p className="text-gray-400 text-xs">{stat.title}</p>
-              </div>
-            </div>
+            <Box
+              key={index}
+              sx={{
+                flex: '1 1 200px',
+                minWidth: 200,
+                p: 2,
+                borderRadius: 2,
+                bgcolor: alpha(stat.color, 0.05),
+                border: `1px solid ${alpha(stat.color, 0.15)}`,
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  borderColor: alpha(stat.color, 0.3),
+                  transform: 'translateY(-2px)',
+                  boxShadow: `0 4px 12px ${alpha(stat.color, 0.15)}`
+                }
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Box sx={{
+                  p: 1,
+                  borderRadius: 1.5,
+                  bgcolor: alpha(stat.color, 0.1),
+                  color: stat.color,
+                  display: 'flex'
+                }}>
+                  <Icon size={18} />
+                </Box>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography variant="h5" sx={{
+                    fontWeight: 700,
+                    color: theme.palette.text.primary,
+                    lineHeight: 1.2
+                  }}>
+                    {stat.value}
+                  </Typography>
+                  <Typography variant="caption" sx={{
+                    color: theme.palette.text.secondary,
+                    fontSize: '0.7rem',
+                    display: 'block'
+                  }}>
+                    {stat.title}
+                  </Typography>
+                </Box>
+                <Box sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                  color: stat.trend === 'up' ? theme.palette.error.main : theme.palette.success.main
+                }}>
+                  <TrendIcon size={14} />
+                  <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem' }}>
+                    {stat.change}
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
           );
         })}
-      </div>
+      </Box>
 
-      {/* Quick Actions */}
-      <div className="bg-gray-800/30 border border-gray-700 rounded-lg p-4">
-        <h3 className="text-lg font-semibold text-white mb-3">Quick Actions</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {quickActions.map((action, index) => {
-            const Icon = action.icon;
+      {/* Recent Threat Alerts - Clean Design */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          borderRadius: 2,
+          border: `1px solid ${theme.palette.divider}`
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            Recent Threat Alerts
+          </Typography>
+          <Button
+            size="small"
+            endIcon={<ArrowRight size={16} />}
+            sx={{
+              color: theme.palette.text.secondary,
+              fontWeight: 600,
+              '&:hover': {
+                color: theme.palette.primary.main,
+                bgcolor: alpha(theme.palette.primary.main, 0.08)
+              }
+            }}
+          >
+            View All
+          </Button>
+        </Box>
+
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          {recentAlerts.map((alert) => {
+            const getSeverityColor = (type) => {
+              if (theme.palette.security) {
+                switch (type) {
+                  case 'critical': return theme.palette.security.critical;
+                  case 'high': return theme.palette.security.high;
+                  case 'medium': return theme.palette.security.medium;
+                  default: return theme.palette.security.low;
+                }
+              }
+              switch (type) {
+                case 'critical': return theme.palette.error.main;
+                case 'high': return theme.palette.warning.main;
+                case 'medium': return theme.palette.info.main;
+                default: return theme.palette.success.main;
+              }
+            };
+
+            const getStatusColor = (status) => {
+              if (theme.palette.security) {
+                switch (status) {
+                  case 'investigating': return theme.palette.security.medium;
+                  case 'new': return theme.palette.security.critical;
+                  case 'monitoring': return theme.palette.security.high;
+                  default: return theme.palette.security.safe;
+                }
+              }
+              switch (status) {
+                case 'investigating': return theme.palette.info.main;
+                case 'new': return theme.palette.error.main;
+                case 'monitoring': return theme.palette.warning.main;
+                default: return theme.palette.success.main;
+              }
+            };
+
+            const severityColor = getSeverityColor(alert.type);
+            const statusColor = getStatusColor(alert.status);
+
             return (
-              <button
-                key={index}
-                className="bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-lg p-3 flex flex-col items-center space-y-2 transition-colors"
+              <Box
+                key={alert.id}
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  bgcolor: alpha(severityColor, 0.03),
+                  borderLeft: `3px solid ${severityColor}`,
+                  border: `1px solid ${alpha(severityColor, 0.15)}`,
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    transform: 'translateX(4px)',
+                    borderColor: alpha(severityColor, 0.25),
+                    bgcolor: alpha(severityColor, 0.05)
+                  }
+                }}
               >
-                <Icon className="h-4 w-4 text-gray-300" />
-                <span className="text-xs text-gray-300">{action.name}</span>
-              </button>
+                <Box sx={{ display: 'flex', gap: 2, alignItems: 'start' }}>
+                  <Box
+                    sx={{
+                      p: 1,
+                      borderRadius: 1.5,
+                      bgcolor: alpha(severityColor, 0.1),
+                      color: severityColor,
+                      display: 'flex'
+                    }}
+                  >
+                    <AlertTriangle size={16} />
+                  </Box>
+
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.text.primary }}>
+                        {alert.title}
+                      </Typography>
+                      <Chip
+                        label={alert.status}
+                        size="small"
+                        sx={{
+                          height: 20,
+                          fontSize: '0.65rem',
+                          fontWeight: 700,
+                          textTransform: 'uppercase',
+                          bgcolor: alpha(statusColor, 0.1),
+                          color: statusColor,
+                          border: `1px solid ${alpha(statusColor, 0.2)}`
+                        }}
+                      />
+                    </Box>
+
+                    <Typography variant="caption" sx={{ color: theme.palette.text.secondary, display: 'block', mb: 1 }}>
+                      {alert.description}
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography variant="caption" sx={{ color: theme.palette.text.secondary, fontSize: '0.7rem', fontWeight: 500 }}>
+                        {alert.source}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: theme.palette.text.secondary, fontSize: '0.7rem' }}>
+                        {alert.time}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
+              </Box>
             );
           })}
-        </div>
-      </div>
-
-      {/* Main Dashboard Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Threat Alerts */}
-        <div className="lg:col-span-2">
-          <div className="bg-gray-800/30 border border-gray-700 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white">Recent Threat Alerts</h3>
-              <button className="text-gray-400 hover:text-white text-sm flex items-center space-x-1">
-                <span>View All</span>
-                <ArrowRight className="h-3 w-3" />
-              </button>
-            </div>
-            <div className="space-y-4">
-              {recentAlerts.map((alert) => (
-                <div key={alert.id} className="bg-gray-700/50 border border-gray-600 rounded p-3">
-                  <div className="flex items-start space-x-3">
-                    <div className={`p-2 rounded ${
-                      alert.type === 'critical' ? 'bg-red-900/50 text-red-400' :
-                      alert.type === 'high' ? 'bg-orange-900/50 text-orange-400' :
-                      'bg-yellow-900/50 text-yellow-400'
-                    }`}>
-                      <AlertTriangle className="h-4 w-4" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-medium text-white text-sm truncate">{alert.title}</h4>
-                        <span className={`px-2 py-1 text-xs rounded ${
-                          alert.status === 'investigating' ? 'bg-blue-900/50 text-blue-300' :
-                          alert.status === 'new' ? 'bg-red-900/50 text-red-300' :
-                          'bg-yellow-900/50 text-yellow-300'
-                        }`}>
-                          {alert.status}
-                        </span>
-                      </div>
-                      <p className="text-gray-400 text-xs mt-1">{alert.description}</p>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="text-xs text-gray-500">{alert.source}</span>
-                        <span className="text-xs text-gray-500">{alert.time}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Threat Distribution */}
-        <div>
-          <div className="bg-gray-800/30 border border-gray-700 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-white mb-4">Threat Distribution</h3>
-            <div className="space-y-3">
-              {[
-                { name: 'Info Stealers', percentage: 45, color: 'bg-gray-600' },
-                { name: 'Credential Dumps', percentage: 30, color: 'bg-gray-500' },
-                { name: 'Dark Web Mentions', percentage: 15, color: 'bg-gray-400' },
-                { name: 'Other Threats', percentage: 10, color: 'bg-gray-300' }
-              ].map((threat, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-300">{threat.name}</span>
-                    <span className="text-white font-medium">{threat.percentage}%</span>
-                  </div>
-                  <div className="w-full bg-gray-700 rounded h-2">
-                    <div
-                      className={`${threat.color} h-2 rounded transition-all duration-300`}
-                      style={{ width: `${threat.percentage}%` }}
-                    ></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Paper>
+    </Container>
   );
 };
 
