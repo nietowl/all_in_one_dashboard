@@ -9,7 +9,10 @@
       "Bash(npm run dev:*)",
       "WebFetch(domain:lnxai.localto.net)",
       "Bash(curl -v \"http://lnxai.localto.net/api/v1/config/?type=stealer&year=2025&month=february&domain=adani.com&start=1&max=50\")",
-      "Bash(curl -s \"http://localhost:3002/api/v1/config/?type=stealer&year=2025&month=february&domain=adani.com&start=1&max=5\")"
+      "Bash(curl -s \"http://localhost:3002/api/v1/config/?type=stealer&year=2025&month=february&domain=adani.com&start=1&max=5\")",
+      "Bash(grep:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
