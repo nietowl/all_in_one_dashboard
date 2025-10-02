@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import { Search, Filter, Calendar, Globe, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 
-const FilterPanel = ({ onFilterChange, loading }) => {
+const FilterPanel = ({ onFilterChange, loading, currentFilters }) => {
   const theme = useTheme();
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
@@ -29,22 +29,20 @@ const FilterPanel = ({ onFilterChange, loading }) => {
     'july', 'august', 'september', 'october', 'november', 'december'
   ];
 
-  const [filters, setFilters] = useState({
-    domain: 'forticore.in',
-    year: currentYear.toString(),
-    month: 'february',
-    start: 1,
-    max: 50
-  });
-
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const handleFilterChange = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+    const newFilters = { ...currentFilters, [key]: value };
+    // Reset start to 1 when max changes or when filter criteria change
+    if (key === 'max' || key === 'domain' || key === 'year' || key === 'month') {
+      newFilters.start = 1;
+    }
+    onFilterChange(newFilters);
   };
 
   const handleSearch = () => {
-    onFilterChange({ ...filters });
+    // Reset to page 1 when explicitly searching
+    onFilterChange({ ...currentFilters, start: 1 });
   };
 
   return (
@@ -88,7 +86,7 @@ const FilterPanel = ({ onFilterChange, loading }) => {
           <TextField
             fullWidth
             label="Target Domain"
-            value={filters.domain}
+            value={currentFilters.domain}
             onChange={(e) => handleFilterChange('domain', e.target.value)}
             onKeyPress={(e) => {
               if (e.key === 'Enter' && !loading) {
@@ -114,14 +112,14 @@ const FilterPanel = ({ onFilterChange, loading }) => {
           <FormControl fullWidth>
             <InputLabel>Year</InputLabel>
             <Select
-              value={filters.year}
+              value={currentFilters.year}
               onChange={(e) => handleFilterChange('year', e.target.value)}
               label="Year"
               startAdornment={<Calendar size={16} style={{ marginRight: 8, color: theme.palette.text.secondary }} />}
               sx={{ borderRadius: 2 }}
             >
               {years.map(year => (
-                <MenuItem key={year} value={year}>{year}</MenuItem>
+                <MenuItem key={year} value={year.toString()}>{year}</MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -131,7 +129,7 @@ const FilterPanel = ({ onFilterChange, loading }) => {
           <FormControl fullWidth>
             <InputLabel>Month</InputLabel>
             <Select
-              value={filters.month}
+              value={currentFilters.month}
               onChange={(e) => handleFilterChange('month', e.target.value)}
               label="Month"
               startAdornment={<Calendar size={16} style={{ marginRight: 8, color: theme.palette.text.secondary }} />}
@@ -187,7 +185,7 @@ const FilterPanel = ({ onFilterChange, loading }) => {
                 fullWidth
                 label="Start Index"
                 type="number"
-                value={filters.start}
+                value={currentFilters.start}
                 onChange={(e) => handleFilterChange('start', parseInt(e.target.value) || 1)}
                 inputProps={{ min: 1 }}
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
@@ -198,7 +196,7 @@ const FilterPanel = ({ onFilterChange, loading }) => {
               <FormControl fullWidth>
                 <InputLabel>Max Results</InputLabel>
                 <Select
-                  value={filters.max}
+                  value={currentFilters.max}
                   onChange={(e) => handleFilterChange('max', parseInt(e.target.value))}
                   label="Max Results"
                   sx={{ borderRadius: 2 }}
@@ -216,7 +214,7 @@ const FilterPanel = ({ onFilterChange, loading }) => {
               <TextField
                 fullWidth
                 label="Active Domain"
-                value={filters.domain}
+                value={currentFilters.domain}
                 disabled
                 sx={{
                   '& .MuiOutlinedInput-root': {
@@ -248,8 +246,8 @@ const FilterPanel = ({ onFilterChange, loading }) => {
           <Box component="span" sx={{ fontWeight: 600, color: theme.palette.text.primary }}>
             Query:
           </Box>{' '}
-          {filters.domain} • {filters.month} {filters.year} •
-          Records {filters.start} to {filters.start + filters.max - 1}
+          {currentFilters.domain} • {currentFilters.month} {currentFilters.year} •
+          Records {currentFilters.start} to {currentFilters.start + currentFilters.max - 1}
         </Typography>
       </Paper>
     </Paper>

@@ -51,7 +51,7 @@ const CombolistPage = () => {
     max: 50
   });
 
-  const fetchData = useCallback(async (filters = currentFilters) => {
+  const fetchData = useCallback(async (filters) => {
     console.log('🚀 Fetching stealer data with filters:', filters);
 
     setLoading(true);
@@ -96,13 +96,13 @@ const CombolistPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentFilters]);
+  }, []);
 
   // Load data when component mounts
   useEffect(() => {
     console.log('🔄 CombolistPage mounted');
-    fetchData();
-  }, [fetchData]);
+    fetchData(currentFilters);
+  }, [fetchData, currentFilters]);
 
   // Debug: Log when credentialData changes
   useEffect(() => {
@@ -110,11 +110,11 @@ const CombolistPage = () => {
     console.log('📊 Data entries:', credentialData.data?.length);
   }, [credentialData]);
 
-  const handleFilterChange = (newFilters) => {
+  const handleFilterChange = useCallback((newFilters) => {
     console.log('🔄 Filters changed:', newFilters);
     setCurrentFilters(newFilters);
     fetchData(newFilters);
-  };
+  }, [fetchData]);
 
   return (
     <Container maxWidth="xl" sx={{ py: 3 }}>
@@ -219,7 +219,7 @@ const CombolistPage = () => {
 
       {/* Filter Panel */}
       <Box sx={{ mb: 4 }}>
-        <FilterPanel onFilterChange={handleFilterChange} loading={loading} />
+        <FilterPanel onFilterChange={handleFilterChange} loading={loading} currentFilters={currentFilters} />
       </Box>
 
       {/* Error Display */}
