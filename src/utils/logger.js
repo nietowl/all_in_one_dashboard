@@ -173,7 +173,8 @@ class Logger {
 
   // API-specific logging
   apiRequest(method, url, params = {}) {
-    this.info(`API Request: ${method.toUpperCase()} ${url}`, {
+    const methodStr = method ? method.toUpperCase() : 'UNKNOWN';
+    this.info(`API Request: ${methodStr} ${url}`, {
       type: 'api_request',
       method,
       url,
@@ -182,8 +183,9 @@ class Logger {
   }
 
   apiResponse(method, url, status, duration) {
+    const methodStr = method ? method.toUpperCase() : 'UNKNOWN';
     const level = status >= 400 ? Logger.LEVELS.ERROR : Logger.LEVELS.INFO;
-    this.log(level, `API Response: ${method.toUpperCase()} ${url} - ${status}`, {
+    this.log(level, `API Response: ${methodStr} ${url} - ${status}`, {
       type: 'api_response',
       method,
       url,
@@ -193,7 +195,8 @@ class Logger {
   }
 
   apiError(method, url, error) {
-    this.error(`API Error: ${method.toUpperCase()} ${url}`, {
+    const methodStr = method ? method.toUpperCase() : 'UNKNOWN';
+    this.error(`API Error: ${methodStr} ${url}`, {
       type: 'api_error',
       method,
       url,
