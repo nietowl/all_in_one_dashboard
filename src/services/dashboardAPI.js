@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance for the real API
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1',
+  baseURL: import.meta.env.DEV ? '/api/v1' : (import.meta.env.VITE_API_BASE_URL || '/api/v1'),
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

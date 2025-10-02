@@ -86,7 +86,7 @@ const requestQueue = new RequestQueue();
 
 // Create axios instance
 const httpClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1',
+  baseURL: import.meta.env.DEV ? '/api/v1' : (import.meta.env.VITE_API_BASE_URL || '/api/v1'),
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
