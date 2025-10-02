@@ -4,7 +4,7 @@ import logger from '../utils/logger';
 // Create a separate axios instance for the external stealer intelligence API
 // Using proxy to avoid CORS issues in development
 const stealerAPI = axios.create({
-  baseURL: import.meta.env.DEV ? '/api/v1' : 'http://lnxai.localto.net/api/v1',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',

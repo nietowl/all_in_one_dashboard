@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance for the real API
 const apiClient = axios.create({
-  baseURL: 'http://lnxai.localto.net/api/v1',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
